@@ -1,0 +1,63 @@
+{
+  "name": "apollo-module-authentication",
+  "version": "1.0.0",
+  "description": "Apollo password authentication",
+  "main": "./dist/schema.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "mocha --require ./setup.js --report lcovonly src/tests/*.ts --compilers ts:ts-node/register --bail ",
+    "coverage": "NODE_ENV=test nyc npm test && nyc report --reporter=lcov",
+    "coveralls": "NODE_ENV=test nyc npm test && nyc report --reporter=text-lcov | coveralls"
+  },
+  "keywords": [
+    "Apollo",
+    "Connector",
+    "Mongodb"
+  ],
+  "author": "Tomi Trescak",
+  "license": "MIT",
+  "eslintConfig": {
+    "extends": "./eslint.js"
+  },
+  "dependencies": {
+    "apollo-connector-mongodb": "^1.0.2",
+    "apollo-modules": "0.0.4",
+    "bcrypt-nodejs": "0.0.3",
+    "jsonwebtoken": "^7.1.9",
+    "meteor-sha256": "^1.0.1",
+    "nodemailer": "^2.6.0"
+  },
+  "devDependencies": {
+    "coveralls": "^2.11.12",
+    "espower-source": "^1.1.0",
+    "mocha": "^3.0.2",
+    "mocha-lcov-reporter": "^1.2.0",
+    "nyc": "^8.1.0",
+    "power-assert": "^1.4.1",
+    "proxyquire": "^1.7.10",
+    "sinon": "^2.0.0-pre.2",
+    "sinon-test": "0.0.1",
+    "ts-node": "^1.3.0",
+    "typescript": "^2.0.2"
+  },
+  "peerDependencies": {
+    "mongodb": "^2.2.9"
+  },
+  "nyc": {
+    "include": [
+      "src/*.ts",
+      "src/**/*.ts"
+    ],
+    "exclude": [
+      "src/typings",
+      "**/*.d.ts"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "all": true
+  }
+}
