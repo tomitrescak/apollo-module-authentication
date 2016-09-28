@@ -1,8 +1,6 @@
 import { SendMailOptions } from 'nodemailer';
 import nodemailer from 'nodemailer';
 
-
-
 export interface PostmanOptions {
   defaultFrom?: string;
   defaultTo?: string;
@@ -25,7 +23,7 @@ export interface PostmanMailOptions extends SendMailOptions {
   url?: string;
 }
 
-class MailTemplates {
+export class MailTemplates {
   defaultOptions: PostmanOptions;
 
   constructor(defaultOptions: PostmanOptions) {

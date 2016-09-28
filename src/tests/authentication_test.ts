@@ -21,6 +21,9 @@ async function assertThrowAsync(func: any, error: string) {
 
 describe('entity', () => {
   let db: Db = null;
+  let user: User;
+  let insertedUser: UserEntity;
+
   const connector: any = {
     collection(name: string) { return db.collection(name); }
   };
@@ -50,9 +53,6 @@ describe('entity', () => {
     await db.dropDatabase();
     await db.close();
   });
-
-  let user: User;
-  let insertedUser: UserEntity;
 
   const userDetails = {
     _id: '1',
@@ -185,32 +185,33 @@ describe('entity', () => {
     stub.restore();
   });
 
-  it('modifyContext: inserts user info from the correct token into context', () => {
-    const loginUser: any = {
-      _id: '1',
-      profile: {
-        name: 'Me',
-      },
-      roles: ['admin']
-    };
+  it('modifyContext: inserts user info from the correct token into context', async () => {
+    const loginUser = insertedUser;
 
     const token = user.createToken(loginUser, 'resume', 1);
-    const context = {};
+    const context: any = { connector };
 
     // bad token
     const badToken = token.hashedToken + '123';
-    user.modifyContext(badToken, context);
-    assert.deepEqual(context, {});
+    await user.modifyContext(badToken, context);
+    assert.equal(context.userId, null);
 
     // incorrect token (non resume)
     const verifyToken = user.createToken(loginUser, 'verify', 1).hashedToken;
-    user.modifyContext(verifyToken, context);
-    assert.deepEqual(context, {});
+    await user.modifyContext(verifyToken, context);
+    assert.deepEqual(context.userId, null);
 
     // good token
-    user.modifyContext(token.hashedToken, context);
-    assert.equal(context['userId'], loginUser._id);
-    assert.deepEqual(context['userRoles'], loginUser.roles);
+
+    await user.modifyContext(token.hashedToken, context);
+
+    assert.equal(context.userId, loginUser._id);
+    assert.deepEqual(context.user, loginUser);
+    assert(context.users);
+
+    // checks for connector
+    const badContext = {};
+    await assertThrowAsync(() => user.modifyContext(token.hashedToken, badContext), 'Expected connector in the context!');
   });
 
   it('verify: verifies received token', async () => {

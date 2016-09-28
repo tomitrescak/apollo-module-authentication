@@ -16,7 +16,6 @@ export interface Token {
 
 export interface HashedToken {
   userId: string;
-  roles: string[];
   type: string;
   email?: string;
 }
@@ -97,16 +96,28 @@ export default class User extends MongoEntity<UserEntity> {
     this.postman = new Postman();
   }
 
-  modifyContext(hashedToken: string, context: any) {
+  async modifyContext(hashedToken: string, context: any) {
     let token: HashedToken;
+
+    // we add user to the context
+    if (!context.users) {
+      if (!context.connector) {
+        throw new Error('Expected connector in the context!');
+      }
+      context.users = new User(context.connector);
+    }
+
+    let verified = false;
     try {
       token = jwt.verify(hashedToken, config.jwtSecret);
-      if (token.type === 'resume') {
-        context.userId = token.userId;
-        context.userRoles = token.roles;
-      }
+      verified = true;
     } catch (err) {
       // console.error(err);
+    }
+
+    if (verified && token.type === 'resume') {
+      context.userId = token.userId;
+      context.user = await context.users.findOneCachedById(context.userId);
     }
   }
 
@@ -121,7 +132,6 @@ export default class User extends MongoEntity<UserEntity> {
 
     const token: HashedToken = {
       userId: user._id,
-      roles: user.roles,
       type
     };
 

@@ -1,10 +1,10 @@
-import User, { UserEntity, AccountsServices, Token } from './authentication';
+import User, { UserEntity, AccountsServices, Token, Email, PasswordService, Profile } from './authentication';
+import { Cursor } from 'mongodb';
 
-interface Context {
+export interface Context {
   user: User;
   userId: string;
 }
-
 
 // function formatResponse(response: any, apolloOptions: ApolloOptions) {
 //   if (apolloOptions.context && apolloOptions.context.errors) {
@@ -51,14 +51,14 @@ export const resolvers = {
 };
 
 export const queries = {
-  user(model: User, { id }: any, context: Context) {
+  user(target: UserEntity, { id }: any, context: Context) {
     id = id ? id : context.userId;
     return context.user.findOne({_id: id});
   },
-  async users(user: User, _: any, context: Context) {
+  async users(target: UserEntity, _: any, context: Context) {
     return context.user.find({});
   },
-  cachedUsers(user: User, _: any, context: Context) {
+  cachedUsers(target: UserEntity, _: any, context: Context) {
     return context.user.findManyCached();
   }
 };

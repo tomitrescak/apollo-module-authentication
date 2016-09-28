@@ -38,7 +38,7 @@
     "no-unused-expression": true,
     "no-unused-variable": [
       true,
-      "brace", "react-dom", "react"
+      {"ignore-pattern": "^[A-Z]"}
     ],
     "no-unreachable": true,
     "no-use-before-declare": true,

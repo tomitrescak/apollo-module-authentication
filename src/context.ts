@@ -5,7 +5,7 @@ export function wrapOptions(dbConnection: any, graphQlOptions: any) {
   if (!graphQlOptions.context) {
     graphQlOptions.context = {};
   }
-  graphQlOptions.context.user = new UserModel(dbConnection);
+  graphQlOptions.context.users = new UserModel(dbConnection);
 
   return (req?: any) => {
     return graphQlOptions;

@@ -7,6 +7,6 @@ describe('context', () => {
     const graphQLoptions = {};
 
     const result = wrapOptions(connection, graphQLoptions);
-    assert(result().context.user, 'User was initialised');
+    assert(result().context.users, 'User was initialised');
   });
 });

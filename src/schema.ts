@@ -1,5 +1,8 @@
 import { ioSchema } from 'apollo-modules';
 import { resolvers, queries, mutations, modifyOptions } from './resolvers';
+import { default as User, Email, Profile, Token, UserEntity, PasswordService, AccountsServices } from './authentication';
+import { Context } from './resolvers';
+import { Cursor } from 'mongodb';
 
 const schema = `
   type Token {
@@ -68,7 +71,7 @@ const mutationText = `
   resume(token: String): Token
 `;
 
-
+export { default as User, UserEntity } from './authentication';
 
 export default {
   schema,
