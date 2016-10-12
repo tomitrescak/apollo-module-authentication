@@ -5,9 +5,7 @@
  *
 */
 
-
-declare module "dataloader/DataLoader"  {
-
+declare module 'dataloader' {
     /**
      *  Copyright (c) 2015, Facebook, Inc.
      *  All rights reserved.
@@ -48,11 +46,11 @@ declare module "dataloader/DataLoader"  {
      * different access permissions and consider creating a new instance per
      * web request.
      */
-    export class DataLoader<K, V> {
-        constructor(
+    export interface IDataLoader<K, V> {
+        new (
             batchLoadFn: BatchLoadFn<K, V>,
             options?: Options<K, V>
-        );
+        ): IDataLoader<K, V>;
 
         /**
          * Loads a key, returning a `Promise` for the value represented by that key.
@@ -78,24 +76,19 @@ declare module "dataloader/DataLoader"  {
          * Clears the value at `key` from the cache, if it exists. Returns itself for
          * method chaining.
          */
-        clear(key: K): DataLoader<K, V>;
+        clear(key: K): IDataLoader<K, V>;
 
         /**
          * Clears the entire cache. To be used when some event results in unknown
          * invalidations across this particular `DataLoader`. Returns itself for
          * method chaining.
          */
-        clearAll(): DataLoader<K, V>;
+        clearAll(): IDataLoader<K, V>;
 
         /**
          * Adds the provided key and value to the cache. If the key already exists, no
          * change is made. Returns itself for method chaining.
          */
-        prime(key: K, value: V): DataLoader<K, V>;
+        prime(key: K, value: V): IDataLoader<K, V>;
     }
-}
-
-declare module "dataloader" {
-    import { DataLoader } from 'dataloader/DataLoader';
-    export = DataLoader;
 }

@@ -1,4 +1,5 @@
 // Place your settings in this file to overwrite default and user settings.
 {
-  "eslint.enable": false
+  "eslint.enable": false,
+  "circleci.apiKey": "bbfe3f9a30155c530ae73c05bb189d4364042e74"
 }

@@ -2,7 +2,7 @@ import User, { UserEntity, AccountsServices, Token, Email, PasswordService, Prof
 import { Cursor } from 'mongodb';
 
 export interface Context {
-  user: User;
+  user: User<UserEntity>;
   userId: string;
 }
 
@@ -59,7 +59,7 @@ export const queries = {
     return context.user.find({});
   },
   cachedUsers(target: UserEntity, _: any, context: Context) {
-    return context.user.findManyCached();
+    return context.user.findAllCached();
   }
 };
 

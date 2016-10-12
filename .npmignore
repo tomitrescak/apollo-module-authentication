@@ -1,1 +1,11 @@
 src
+tsconfig.json
+.nyc_output
+coverage
+.vscode
+.npmignore
+circel.yml
+.coveralls.yml
+tslint.json
+wallaby.js
+setup.js

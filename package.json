@@ -1,6 +1,6 @@
 {
   "name": "apollo-module-authentication",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Apollo password authentication",
   "main": "./dist/schema.js",
   "scripts": {
@@ -25,6 +25,7 @@
     "apollo-modules": "0.0.4",
     "bcrypt-nodejs": "0.0.3",
     "jsonwebtoken": "^7.1.9",
+    "meteor-random": "^0.0.3",
     "meteor-sha256": "^1.0.1",
     "nodemailer": "^2.6.0"
   },

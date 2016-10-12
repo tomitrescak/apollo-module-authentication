@@ -73,6 +73,8 @@ const mutationText = `
 
 export { default as User, UserEntity } from './authentication';
 
+export { default as config } from './config';
+
 export default {
   schema,
   resolvers,

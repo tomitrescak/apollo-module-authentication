@@ -15,7 +15,7 @@
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "node"
   },
-  "filesGlob": [
+  "include": [
     "src/**/*.ts"
   ],
   "exclude": [

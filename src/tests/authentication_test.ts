@@ -21,7 +21,7 @@ async function assertThrowAsync(func: any, error: string) {
 
 describe('entity', () => {
   let db: Db = null;
-  let user: User;
+  let user: User<UserEntity>;
   let insertedUser: UserEntity;
 
   const connector: any = {

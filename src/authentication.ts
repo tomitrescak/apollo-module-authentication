@@ -10,7 +10,7 @@ import Postman from './postman';
 
 export interface Token {
   hashedToken: HashedToken;
-  user: User;
+  user: User<UserEntity>;
   expires: Date;
 }
 
@@ -52,12 +52,12 @@ export interface Email {
 }
 
 export interface UserEntity {
-  _id: string;
-  createdAt: Date;
-  services: AccountsServices;
-  emails: Email[];
-  profile: Profile;
-  roles: string[];
+  _id?: string;
+  createdAt?: Date;
+  services?: AccountsServices;
+  emails?: Email[];
+  profile?: Profile;
+  roles?: string[];
 }
 
 // helper functions
@@ -82,7 +82,7 @@ function checkPassword(user: UserEntity, password: string) {
   return result;
 };
 
-export default class User extends MongoEntity<UserEntity> {
+export default class User<T extends UserEntity> extends MongoEntity<T> {
 
   static options: {
     sendVerificationMail: boolean
@@ -254,7 +254,7 @@ export default class User extends MongoEntity<UserEntity> {
     const emailIndex = user.emails.findIndex((e) => e.address === token.email);
 
     // create a new password and update collection
-    this.update({ _id: token.userId }, { $set: { ['emails.' + emailIndex + '.verified']: true } });
+    this.updateOne({ _id: token.userId }, { $set: { ['emails.' + emailIndex + '.verified']: true } });
     return this.createToken(user, 'resume', 168);
   }
 
@@ -306,7 +306,7 @@ export default class User extends MongoEntity<UserEntity> {
 
     // create a new password and update collection
     let hashed = this.hashPassword(newPassword);
-    this.update({ _id: token.userId }, { $set: { 'services.password.bcrypt': hashed } });
+    this.updateOne({ _id: token.userId }, { $set: { 'services.password.bcrypt': hashed } });
 
     // now login
     const user = await this.findOneCachedById(token.userId);
