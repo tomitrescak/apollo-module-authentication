@@ -1,4 +1,4 @@
-import { ioSchema } from 'apollo-modules';
+import { ioSchema, ApolloOptions } from 'apollo-modules';
 import { resolvers, queries, mutations, modifyOptions } from './resolvers';
 import { default as User, Email, Profile, Token, UserEntity, PasswordService, AccountsServices } from './authentication';
 import { Context } from './resolvers';

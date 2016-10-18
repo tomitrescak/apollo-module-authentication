@@ -1,8 +1,9 @@
 import User, { UserEntity, AccountsServices, Token, Email, PasswordService, Profile } from './authentication';
+import { ApolloOptions } from 'apollo-modules';
 import { Cursor } from 'mongodb';
 
 export interface Context {
-  user: User<UserEntity>;
+  users: User<UserEntity>;
   userId: string;
 }
 
@@ -22,7 +23,7 @@ export interface Context {
 
 export function modifyOptions(req: any, apolloOptions: ApolloOptions): void {
   if (req.headers.authorization) {
-    apolloOptions.context.user.modifyContext(req.headers.authorization, apolloOptions.context);
+    apolloOptions.context.users.modifyContext(req.headers.authorization, apolloOptions.context);
   }
 }
 
@@ -53,54 +54,54 @@ export const resolvers = {
 export const queries = {
   user(target: UserEntity, { id }: any, context: Context) {
     id = id ? id : context.userId;
-    return context.user.findOne({_id: id});
+    return context.users.findOne({_id: id});
   },
   async users(target: UserEntity, _: any, context: Context) {
-    return context.user.find({});
+    return context.users.find({});
   },
   cachedUsers(target: UserEntity, _: any, context: Context) {
-    return context.user.findAllCached();
+    return context.users.findAllCached();
   }
 };
 
 export const mutations = {
   createAccount(_: any, args: any, context: Context) {
     const { email, password, profile } = args.user;
-    return context.user.create(null, email, password, profile);
+    return context.users.create(null, email, password, profile);
   },
   async createAccountAndLogin(_: any, args: any, context: Context) {
     const { email, password, profile } = args.user;
 
     // create user
-    await context.user.create(null, email, password, profile);
+    await context.users.create(null, email, password, profile);
 
     // login user
-    const token = await context.user.login(email, password);
+    const token = await context.users.login(email, password);
     return token;
   },
   loginWithPassword(_: any, args: any, context: Context) {
     const { email, password } = args.user;
-    return context.user.login(email, password);
+    return context.users.login(email, password);
   },
   requestResendVerification(_: any, args: any, context: Context) {
     const { email } = args;
-    return context.user.requestVerification(email);
+    return context.users.requestVerification(email);
   },
   verify(_: any, args: any, context: Context) {
     const { token } = args;
-    return context.user.verify(token);
+    return context.users.verify(token);
   },
   resume(_: any, args: any, context: Context) {
     const { token } = args;
-    return context.user.resume(token);
+    return context.users.resume(token);
   },
   requestResetPassword(_: any, args: any, context: Context) {
     const { email } = args;
-    return context.user.requestResetPassword(email);
+    return context.users.requestResetPassword(email);
   },
   resetPassword(_: any, args: any, context: Context) {
     const { token, password } = args;
-    return context.user.resetPassword(token, password);
+    return context.users.resetPassword(token, password);
   }
 };
 
