@@ -1,4 +1,4 @@
-import { ioSchema, ApolloOptions } from 'apollo-modules';
+import { ApolloOptions } from 'apollo-modules';
 import { resolvers, queries, mutations, modifyOptions } from './resolvers';
 import { default as User, Email, Profile, Token, UserEntity, PasswordService, AccountsServices } from './authentication';
 import { Context } from './resolvers';
@@ -9,14 +9,6 @@ const schema = `
     hashedToken: String!
     expires: Date!
     user: User!
-  }
-
-  ${ioSchema(`Profile$Input {
-    name: String
-  }`)}
-
-  type Profile {
-    name: String
   }
 
   type AccountEmail {
