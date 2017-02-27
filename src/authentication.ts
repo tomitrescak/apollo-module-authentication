@@ -117,7 +117,9 @@ export default class User<T extends UserEntity> extends MongoEntity<T> {
 
     if (verified && token.type === 'resume') {
       context.userId = token.userId;
+      // console.log(context.userId);
       context.user = await context.users.findOneCachedById(context.userId);
+      // console.log(context.user);
     }
   }
 
@@ -184,7 +186,19 @@ export default class User<T extends UserEntity> extends MongoEntity<T> {
     if (value != null) {
       throw new Error('User with this email already exists!');
     }
+
+    // perform external validations
+    if (config.validateCreate) {
+      await config.validateCreate(user);
+    }
+
     await this.collection.insertOne(user);
+
+    // send verification email
+    if (config.requireVerification) {
+      await this.requestVerification(email);
+    }
+
     return user;
   }
 
@@ -193,7 +207,7 @@ export default class User<T extends UserEntity> extends MongoEntity<T> {
 
     // possibly there is no user
     if (!user) {
-      throw new Error('User with that email address not found!');
+      throw new Error(`User with '${email}' address not found!`);
     };
 
     let result = checkPassword(user, password);
@@ -228,9 +242,9 @@ export default class User<T extends UserEntity> extends MongoEntity<T> {
     return await this.postman.sendMail(email);
   }
 
-  requestVerification(email: string) {
+  async requestVerification(email: string) {
     // insert verification token to database and send email
-    return this.sendEmailToUser(email, 'verifyEmail', this.postman.mailTemplates.sendVerification);
+    return await this.sendEmailToUser(email, 'verifyEmail', (options: any) => this.postman.mailTemplates.sendVerification(options));
   }
 
   async verify(hashedToken: string) {
@@ -283,7 +297,7 @@ export default class User<T extends UserEntity> extends MongoEntity<T> {
   }
 
   requestResetPassword(email: string) {
-    return this.sendEmailToUser(email, 'resetPassword', this.postman.mailTemplates.resetPassword);
+    return this.sendEmailToUser(email, 'resetPassword', (options: any) => this.postman.mailTemplates.resetPassword(options));
   }
 
   async resetPassword(hashedToken: string, newPassword: string) {

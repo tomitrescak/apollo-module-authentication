@@ -1,6 +1,6 @@
 import * as assert from 'power-assert';
-import { default as PostmanType, PostmanOptions } from '../postman';
-
+import { default as PostmanType } from '../postman';
+import { PostmanOptions } from '../postman_shared';
 import * as proxyquire from 'proxyquire';
 import * as sinon from 'sinon';
 
@@ -129,7 +129,7 @@ describe('Postman', function () {
 
     it('sends verification with verification mail options', async () => {
       process.env.MAIL_URL = 'Set';
-      const options = { from: 'Me', to: 'You' };
+      const options = { from: 'tomi@tomi.com', to: 'tomi@tomi.com' };
 
       const sendMailSpy = sinon.spy(postman, 'sendMail');
       const mailTemplateSpy = sinon.spy(postman.mailTemplates, 'sendVerification');

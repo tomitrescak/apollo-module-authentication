@@ -1,27 +1,7 @@
 import { SendMailOptions } from 'nodemailer';
-import nodemailer from 'nodemailer';
+import { PostmanOptions, PostmanMailOptions } from './postman_shared';
 
-export interface PostmanOptions {
-  defaultFrom?: string;
-  defaultTo?: string;
-  resetPassword?: {
-    subject?: string;
-    text?: string;
-    html?: string;
-  };
-
-  verification?: {
-    subject?: string;
-    text?: string;
-    html?: string;
-  };
-};
-
-export interface PostmanMailOptions extends SendMailOptions {
-  fromName?: string;
-  toName?: string;
-  url?: string;
-}
+import nodemailer = require('nodemailer');
 
 export class MailTemplates {
   defaultOptions: PostmanOptions;
@@ -108,6 +88,7 @@ Thanks.
   set mailOptions(options: PostmanOptions) {
     if (options) {
       this._defaultMailOptions = Object.assign(this._defaultMailOptions, options);
+      this.mailTemplates.defaultOptions = this._defaultMailOptions;
     }
   };
 
@@ -138,6 +119,7 @@ Thanks.
       }
       this.transporter = nodemailer.createTransport(process.env.MAIL_URL);
     }
+    console.log(mailOptions);
     return await this.transporter.sendMail(mailOptions);
   }
 }

@@ -21,26 +21,26 @@ export interface Context {
 //   return response;
 // }
 
-export function modifyOptions(req: any, apolloOptions: ApolloOptions): void {
+export async function modifyOptions(req: any, apolloOptions: ApolloOptions) {
   if (req.headers.authorization) {
-    apolloOptions.context.users.modifyContext(req.headers.authorization, apolloOptions.context);
+    await apolloOptions.context.users.modifyContext(req.headers.authorization, apolloOptions.context);
   }
 }
 
 export const resolvers = {
   User: {
-    emails(user: UserEntity) {
+    emails(user: UserEntity): Email[] {
       return user.emails;
     },
     services(user: UserEntity) {
       return user.services;
     },
-    profile(user: UserEntity) {
+    profile(user: UserEntity): Profile {
       return user.profile;
     }
   },
   AccountServices: {
-    password(services: AccountsServices) {
+    password(services: AccountsServices): PasswordService {
       return services.password;
     }
   },
@@ -52,14 +52,14 @@ export const resolvers = {
 };
 
 export const queries = {
-  user(target: UserEntity, { id }: any, context: Context) {
+  user(_target: UserEntity, { id }: any, context: Context): Promise<UserEntity> {
     id = id ? id : context.userId;
     return context.users.findOne({_id: id});
   },
-  async users(target: UserEntity, _: any, context: Context) {
+  async users(_target: UserEntity, _: any, context: Context): Promise<Cursor<UserEntity>> {
     return context.users.find({});
   },
-  cachedUsers(target: UserEntity, _: any, context: Context) {
+  cachedUsers(_target: UserEntity, _: any, context: Context): Promise<UserEntity[]> {
     return context.users.findAllCached();
   }
 };

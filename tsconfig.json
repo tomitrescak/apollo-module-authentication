@@ -13,7 +13,9 @@
     "experimentalDecorators": true,
     "sourceMap": false,
     "allowSyntheticDefaultImports": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
   },
   "include": [
     "src/**/*.ts"

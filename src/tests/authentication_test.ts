@@ -105,7 +105,7 @@ describe('entity', () => {
 
   it('login: can login and throw errors upon unsuccessfull login', async () => {
     // non existent user
-    await assertThrowAsync(() => user.login('a', 'b'), 'User with that email address not found!');
+    await assertThrowAsync(() => user.login('a', 'b'), 'User with \'a\' address not found!');
 
     // incorrect password
     await assertThrowAsync(() => user.login(userDetails.email, 'b'), 'Invalid credentials!');
@@ -173,7 +173,7 @@ describe('entity', () => {
   it('requestification: sends mail with verification', () => {
     const stub = sinon.stub(user, 'sendEmailToUser');
     user.requestVerification('email');
-    assert(stub.calledWith('email', 'verifyEmail', user.postman.mailTemplates.sendVerification));
+    assert(stub.calledWith('email', 'verifyEmail', sinon.match.func));
     stub.restore();
   });
 
@@ -181,7 +181,7 @@ describe('entity', () => {
   it('requestResetPassword: sends mail with reset password instructions', () => {
     const stub = sinon.stub(user, 'sendEmailToUser');
     user.requestResetPassword('email');
-    assert(stub.calledWith('email', 'resetPassword', user.postman.mailTemplates.resetPassword));
+    assert(stub.calledWith('email', 'resetPassword', sinon.match.func));
     stub.restore();
   });
 
