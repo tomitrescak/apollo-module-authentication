@@ -67,7 +67,7 @@ export const queries = {
     id = id ? id : context.userId;
     return context.users.findOne({ _id: id });
   },
-  async users(_target: UserEntity, _: any, context: Context): Promise<Cursor<UserEntity>> {
+  async users(_target: UserEntity, _: any, context: Context) {
     return context.users.find({});
   },
   cachedUsers(_target: UserEntity, _: any, context: Context): Promise<UserEntity[]> {
