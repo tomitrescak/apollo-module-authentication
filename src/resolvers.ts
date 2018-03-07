@@ -76,12 +76,12 @@ export const mutations = {
     await context.users.create(null, email, password, profile);
 
     // login user
-    const token = await context.users.login(email, password);
+    const token = await context.users.login(email, password, context);
     return token;
   },
   loginWithPassword(_: any, args: any, context: Context) {
     const { email, password } = args.user;
-    return context.users.login(email, password);
+    return context.users.login(email, password, context);
   },
   requestResendVerification(_: any, args: any, context: Context) {
     const { email } = args;

@@ -7,6 +7,7 @@ import * as sha256 from 'meteor-sha256';
 import config from './config';
 
 import Postman from './postman';
+import { Context } from './resolvers';
 
 export interface Token {
   hashedToken: HashedToken;
@@ -202,7 +203,7 @@ export default class User<T extends UserEntity> extends MongoEntity<T> {
     return user;
   }
 
-  async login(email: string, password: string) {
+  async login(email: string, password: string, context: Context) {
     const user = await this.collection.findOne({ 'emails.address': email });
 
     // possibly there is no user
@@ -223,6 +224,9 @@ export default class User<T extends UserEntity> extends MongoEntity<T> {
         throw new Error('Email not verified!');
       }
     }
+
+    // add user to context
+    context.userId = user._id;
 
     return this.createToken(user, 'resume', 168);
   }

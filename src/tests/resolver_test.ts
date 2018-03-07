@@ -101,13 +101,14 @@ describe('resolvers', () => {
     }));
 
     it('createAccountAndLogin', async () => {
+      
       const createStub = sinon.stub(context.users, 'create');
       const loginStub = sinon.stub(context.users, 'login');
 
       await resolver.mutations.createAccountAndLogin(null, { user: loginUser }, context);
 
       sinon.assert.calledWithExactly(createStub, null, loginUser.email, loginUser.password, loginUser.profile);
-      sinon.assert.calledWithExactly(loginStub, loginUser.email, loginUser.password);
+      sinon.assert.calledWith(loginStub, loginUser.email, loginUser.password);
 
       createStub.restore();
       loginStub.restore();
@@ -118,7 +119,7 @@ describe('resolvers', () => {
       const result = resolver.mutations.loginWithPassword(null, { user: loginUser }, context);
 
       // check the call and the return value
-      sinon.assert.alwaysCalledWithExactly(stub, loginUser.email, loginUser.password);
+      sinon.assert.alwaysCalledWith(stub, loginUser.email, loginUser.password);
       assert.equal(1, result);
     }));
 

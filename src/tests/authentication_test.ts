@@ -105,21 +105,23 @@ describe('entity', () => {
 
   it('login: can login and throw errors upon unsuccessfull login', async () => {
     // non existent user
-    await assertThrowAsync(() => user.login('a', 'b'), 'User with \'a\' address not found!');
+    await assertThrowAsync(() => user.login('a', 'b', {} as any), 'User with \'a\' address not found!');
 
     // incorrect password
-    await assertThrowAsync(() => user.login(userDetails.email, 'b'), 'Invalid credentials!');
+    await assertThrowAsync(() => user.login(userDetails.email, 'b', {} as any), 'Invalid credentials!');
 
     // verification failed  
     config.requireVerification = true;
-    await assertThrowAsync(() => user.login(userDetails.email, userDetails.password), 'Email not verified!');
+    await assertThrowAsync(() => user.login(userDetails.email, userDetails.password, {} as any), 'Email not verified!');
 
     const date = new Date();
     date.setDate(date.getDate() + 7);
 
+    let context: any = {};
+
     // correct login
     config.requireVerification = false;
-    const token = await user.login(userDetails.email, userDetails.password);
+    const token = await user.login(userDetails.email, userDetails.password, context);
 
     // token expires in 7 days
     assert(token.expires >= date);

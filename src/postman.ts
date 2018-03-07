@@ -1,7 +1,7 @@
 import { SendMailOptions } from 'nodemailer';
 import { PostmanOptions, PostmanMailOptions } from './postman_shared';
 
-import nodemailer = require('nodemailer');
+const nodemailer = require('nodemailer');
 
 export class MailTemplates {
   defaultOptions: PostmanOptions;

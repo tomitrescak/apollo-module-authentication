@@ -10,9 +10,7 @@ const createTransportSpy = sinon.spy(() => ({
 }));
 
 const MailerStub: any = {
-  default: {
-    createTransport: createTransportSpy
-  }
+  createTransport: createTransportSpy
 };
 
 const Postman = proxyquire('../postman', { 'nodemailer': MailerStub }).default;
@@ -139,6 +137,21 @@ describe('Postman', function () {
       assert(sendMailSpy.calledOnce);
       assert(mailTemplateSpy.calledOnce);
       assert(mailTemplateSpy.calledWithExactly(options));
+    });
+
+    it('uses real postman to send mail but fail on login info', async () => {
+      process.env.MAIL_URL = 'smtps://unknown:user@smtp.gmail.com';
+      const postman_real = new PostmanType();
+      const options = { from: 'tomi@tomi.com', to: 'tomi@tomi.com' };
+
+      const sendMailSpy = sinon.spy(postman, 'sendMail');
+      const mailTemplateSpy = sinon.spy(postman.mailTemplates, 'sendVerification');
+
+      try {
+        await postman_real.sendVerification(options);
+      } catch (ex) {
+        assert(ex.message.match(/Invalid login/));
+      }
     });
 
   });
