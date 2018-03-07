@@ -1,4 +1,5 @@
 import * as assert from 'power-assert';
+
 import { wrapOptions } from '../context';
 
 describe('context', () => {

@@ -15,7 +15,9 @@
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "node",
     "noUnusedLocals": false,
-    "noUnusedParameters": false
+    "noUnusedParameters": false,
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true
   },
   "include": [
     "src/**/*.ts"

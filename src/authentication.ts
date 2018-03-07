@@ -1,11 +1,11 @@
-import { MongoEntity, MongoConnector } from 'apollo-connector-mongodb';
-import * as Random from 'meteor-random';
 import * as bcrypt from 'bcrypt-nodejs';
 import * as jwt from 'jsonwebtoken';
+import * as Random from 'meteor-random';
 import * as sha256 from 'meteor-sha256';
 
-import config from './config';
+import { MongoConnector, MongoEntity } from 'apollo-connector-mongodb';
 
+import config from './config';
 import Postman from './postman';
 import { Context } from './resolvers';
 
@@ -71,7 +71,7 @@ function calculateHash(text: string): string {
 }
 
 function checkPassword(user: UserEntity, password: string) {
-  let result: { userId: string, error?: Error } = {
+  let result: { userId: string; error?: Error } = {
     userId: user._id
   };
 
@@ -81,12 +81,11 @@ function checkPassword(user: UserEntity, password: string) {
     result.error = new Error('Incorrect password');
   }
   return result;
-};
+}
 
 export default class User<T extends UserEntity> extends MongoEntity<T> {
-
   static options: {
-    sendVerificationMail: boolean
+    sendVerificationMail: boolean;
   };
 
   postman: Postman;
@@ -127,7 +126,7 @@ export default class User<T extends UserEntity> extends MongoEntity<T> {
   hashPassword(password: string) {
     password = calculateHash(password);
     return bcrypt.hashSync(password, bcrypt.genSaltSync(10));
-  };
+  }
 
   createToken(user: UserEntity, type: string, expirationInHours: number, email?: string) {
     // const hashedToken = calculateHash(Random.secret());
@@ -142,11 +141,7 @@ export default class User<T extends UserEntity> extends MongoEntity<T> {
       token.email = email;
     }
 
-    const hashedToken = jwt.sign(
-      token,
-      config.jwtSecret,
-      { expiresIn: expirationInHours + 'h' }
-    );
+    const hashedToken = jwt.sign(token, config.jwtSecret, { expiresIn: expirationInHours + 'h' });
 
     return {
       hashedToken,
@@ -161,7 +156,7 @@ export default class User<T extends UserEntity> extends MongoEntity<T> {
   }
 
   async create(username: string, email: string, password: string, profile: Profile) {
-    if (!username && !email || !password) {
+    if ((!username && !email) || !password) {
       throw new Error('Need to set a username or email');
     }
 
@@ -209,7 +204,7 @@ export default class User<T extends UserEntity> extends MongoEntity<T> {
     // possibly there is no user
     if (!user) {
       throw new Error(`User with '${email}' address not found!`);
-    };
+    }
 
     let result = checkPassword(user, password);
 
@@ -219,7 +214,7 @@ export default class User<T extends UserEntity> extends MongoEntity<T> {
 
     // find email and check if it is verified
     if (config.requireVerification) {
-      const userEmail = user.emails.find((e) => e.address === email);
+      const userEmail = user.emails.find(e => e.address === email);
       if (!userEmail.verified) {
         throw new Error('Email not verified!');
       }
@@ -243,12 +238,14 @@ export default class User<T extends UserEntity> extends MongoEntity<T> {
     let url = `${process.env.ROOT_URL}?${type}=${token}`;
     let email = template({ url, to });
 
-    return await this.postman.sendMail(email);
+    return this.postman.sendMail(email);
   }
 
   async requestVerification(email: string) {
     // insert verification token to database and send email
-    return await this.sendEmailToUser(email, 'verifyEmail', (options: any) => this.postman.mailTemplates.sendVerification(options));
+    return this.sendEmailToUser(email, 'verifyEmail', (options: any) =>
+      this.postman.mailTemplates.sendVerification(options)
+    );
   }
 
   async verify(hashedToken: string) {
@@ -264,15 +261,18 @@ export default class User<T extends UserEntity> extends MongoEntity<T> {
     }
 
     // now login
-    const user = await this.collection.findOne(({ _id: token.userId }));
+    const user = await this.collection.findOne({ _id: token.userId });
     if (!user) {
       throw new Error('User does not exist!');
     }
 
-    const emailIndex = user.emails.findIndex((e) => e.address === token.email);
+    const emailIndex = user.emails.findIndex(e => e.address === token.email);
 
     // create a new password and update collection
-    this.updateOne({ _id: token.userId }, { $set: { ['emails.' + emailIndex + '.verified']: true } });
+    this.updateOne(
+      { _id: token.userId },
+      { $set: { ['emails.' + emailIndex + '.verified']: true } }
+    );
     return this.createToken(user, 'resume', 168);
   }
 
@@ -301,11 +301,12 @@ export default class User<T extends UserEntity> extends MongoEntity<T> {
   }
 
   requestResetPassword(email: string) {
-    return this.sendEmailToUser(email, 'resetPassword', (options: any) => this.postman.mailTemplates.resetPassword(options));
+    return this.sendEmailToUser(email, 'resetPassword', (options: any) =>
+      this.postman.mailTemplates.resetPassword(options)
+    );
   }
 
   async resetPassword(hashedToken: string, newPassword: string) {
-
     let token: HashedToken;
     try {
       token = jwt.verify(hashedToken, config.jwtSecret);

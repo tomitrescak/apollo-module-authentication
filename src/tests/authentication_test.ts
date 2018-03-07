@@ -1,6 +1,7 @@
 import * as assert from 'power-assert';
 import * as sinon from 'sinon';
-import { MongoClient, Db } from 'mongodb';
+
+import { Db, MongoClient } from 'mongodb';
 
 import User, { UserEntity } from '../authentication';
 import config from '../config';
@@ -21,19 +22,22 @@ async function assertThrowAsync(func: any, error: string) {
 
 describe('entity', () => {
   let db: Db = null;
+  let client: MongoClient;
   let user: User<UserEntity>;
   let insertedUser: UserEntity;
 
   const connector: any = {
-    collection(name: string) { return db.collection(name); }
+    collection(name: string) {
+      return db.collection(name);
+    }
   };
 
-  // connecto to database
-  before(async function () {
+  // connec to to database
+  before(async function() {
     process.env.ROOT_URL = 'URL';
     const name = 'tmp' + Math.floor(Math.random() * 10000);
-    db = await MongoClient.connect(`mongodb://${host}:${port}/${name}`);
-    global.db = db;
+    client = await MongoClient.connect(`mongodb://${host}:${port}`);
+    db = await client.db(name);
 
     // // delete other
     // const dbs = await db.admin().listDatabases();
@@ -49,9 +53,9 @@ describe('entity', () => {
 
   // close the connection
   after(async () => {
-    delete (process.env.ROOT_URL);
+    delete process.env.ROOT_URL;
     await db.dropDatabase();
-    await db.close();
+    await client.close();
   });
 
   const userDetails = {
@@ -67,7 +71,12 @@ describe('entity', () => {
 
   beforeEach(async () => {
     user = new User(connector);
-    insertedUser = await user.create(userDetails.username, userDetails.email, userDetails.password, userDetails.profile);
+    insertedUser = await user.create(
+      userDetails.username,
+      userDetails.email,
+      userDetails.password,
+      userDetails.profile
+    );
   });
 
   afterEach(async () => {
@@ -79,17 +88,11 @@ describe('entity', () => {
     assert(insertedUser);
 
     // user and email need to be specified
-    assertThrowAsync(
-      () => user.create(null, null, null, null),
-      'Need to set a username or email');
+    assertThrowAsync(() => user.create(null, null, null, null), 'Need to set a username or email');
 
-    assertThrowAsync(
-      () => user.create('A', null, null, null),
-      'Need to set a username or email');
+    assertThrowAsync(() => user.create('A', null, null, null), 'Need to set a username or email');
 
-    assertThrowAsync(
-      () => user.create('A', 'B', null, null),
-      'Need to set a username or email');
+    assertThrowAsync(() => user.create('A', 'B', null, null), 'Need to set a username or email');
 
     const users = await user.find({}).toArray();
     assert.equal(users.length, 1);
@@ -99,20 +102,35 @@ describe('entity', () => {
     assert.deepEqual(newUser.profile, userDetails.profile);
     assert(newUser.createdAt >= startDate);
 
-    const a = () => user.create(userDetails.username, userDetails.email, userDetails.password, userDetails.profile);
+    const a = () =>
+      user.create(
+        userDetails.username,
+        userDetails.email,
+        userDetails.password,
+        userDetails.profile
+      );
     await assertThrowAsync(a, 'User with this email already exists!');
   });
 
   it('login: can login and throw errors upon unsuccessfull login', async () => {
     // non existent user
-    await assertThrowAsync(() => user.login('a', 'b', {} as any), 'User with \'a\' address not found!');
+    await assertThrowAsync(
+      () => user.login('a', 'b', {} as any),
+      'User with \'a\' address not found!'
+    );
 
     // incorrect password
-    await assertThrowAsync(() => user.login(userDetails.email, 'b', {} as any), 'Invalid credentials!');
+    await assertThrowAsync(
+      () => user.login(userDetails.email, 'b', {} as any),
+      'Invalid credentials!'
+    );
 
-    // verification failed  
+    // verification failed
     config.requireVerification = true;
-    await assertThrowAsync(() => user.login(userDetails.email, userDetails.password, {} as any), 'Email not verified!');
+    await assertThrowAsync(
+      () => user.login(userDetails.email, userDetails.password, {} as any),
+      'Email not verified!'
+    );
 
     const date = new Date();
     date.setDate(date.getDate() + 7);
@@ -152,7 +170,8 @@ describe('entity', () => {
     // try sending mail to nonexistent user
     assertThrowAsync(
       () => user.sendEmailToUser('Non existent', type, template),
-      'User email does not exist');
+      'User email does not exist'
+    );
 
     // execute
     await user.sendEmailToUser(userDetails.email, type, template);
@@ -172,13 +191,12 @@ describe('entity', () => {
     user.postman.transporter = originalTransporter;
   });
 
-  it('requestification: sends mail with verification', () => {
+  it('request verification: sends mail with verification', () => {
     const stub = sinon.stub(user, 'sendEmailToUser');
     user.requestVerification('email');
     assert(stub.calledWith('email', 'verifyEmail', sinon.match.func));
     stub.restore();
   });
-
 
   it('requestResetPassword: sends mail with reset password instructions', () => {
     const stub = sinon.stub(user, 'sendEmailToUser');
@@ -213,13 +231,16 @@ describe('entity', () => {
 
     // checks for connector
     const badContext = {};
-    await assertThrowAsync(() => user.modifyContext(token.hashedToken, badContext), 'Expected connector in the context!');
+    await assertThrowAsync(
+      () => user.modifyContext(token.hashedToken, badContext),
+      'Expected connector in the context!'
+    );
   });
 
   it('verify: verifies received token', async () => {
     // refuses with non existent user
-    let baduser = Object.assign({}, insertedUser, { _id: '1000' });
-    let verifyToken = user.createToken(baduser, 'verifyEmail', 1).hashedToken;
+    let badUser = {...insertedUser, _id: '1000' };
+    let verifyToken = user.createToken(badUser, 'verifyEmail', 1).hashedToken;
 
     await assertThrowAsync(() => user.verify(verifyToken), 'User does not exist!');
 
@@ -236,7 +257,8 @@ describe('entity', () => {
     date.setDate(date.getDate() + 7);
 
     // check if user has been verified
-    verifyToken = user.createToken(insertedUser, 'verifyEmail', 1, insertedUser.emails[0].address).hashedToken;
+    verifyToken = user.createToken(insertedUser, 'verifyEmail', 1, insertedUser.emails[0].address)
+      .hashedToken;
     const token = await user.verify(verifyToken);
 
     const verifiedUser = await user.findOneCachedById(insertedUser._id);
@@ -247,8 +269,8 @@ describe('entity', () => {
 
   it('resume: creates a resume token to continue the session', async () => {
     // refuses with non existent user
-    let baduser = Object.assign({}, insertedUser, { _id: '1000' });
-    let verifyToken = user.createToken(baduser, 'resume', 1).hashedToken;
+    let badUser = {...insertedUser, _id: '1000' };
+    let verifyToken = user.createToken(badUser, 'resume', 1).hashedToken;
 
     await assertThrowAsync(() => user.resume(verifyToken), 'User does not exist!');
 
@@ -273,14 +295,17 @@ describe('entity', () => {
 
   it('resetPassword: create a new password if token is correct', async () => {
     const password = '567';
-    let baduser = Object.assign({}, insertedUser, { _id: '1000' });
-    let verifyToken = user.createToken(baduser, 'resetPassword', 1).hashedToken;
+    let badUser = {...insertedUser,  _id: '1000' };
+    let verifyToken = user.createToken(badUser, 'resetPassword', 1).hashedToken;
 
     await assertThrowAsync(() => user.resetPassword(verifyToken, password), 'User does not exist!');
 
     // incorrect token (non verifyEmail)
     verifyToken = user.createToken(insertedUser, 'verifyEmail', 1).hashedToken;
-    await assertThrowAsync(() => user.resetPassword(verifyToken, password), 'This is not a reset token');
+    await assertThrowAsync(
+      () => user.resetPassword(verifyToken, password),
+      'This is not a reset token'
+    );
 
     // invalid token
     verifyToken = user.createToken(insertedUser, 'resetPassword', 1).hashedToken + '123';

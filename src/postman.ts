@@ -1,5 +1,6 @@
 import { SendMailOptions } from 'nodemailer';
-import { PostmanOptions, PostmanMailOptions } from './postman_shared';
+
+import { PostmanMailOptions, PostmanOptions } from './postman_shared';
 
 const nodemailer = require('nodemailer');
 
@@ -11,7 +12,9 @@ export class MailTemplates {
   }
 
   substitute(text: string, options: PostmanMailOptions) {
-    if (!text) { return text; };
+    if (!text) {
+      return text;
+    }
     if (options.fromName) {
       text = text.replace(/\$\{fromName\}/g, options.fromName);
     }
@@ -43,8 +46,7 @@ export class MailTemplates {
       html: this.substitute(this.defaultOptions.verification.html, options)
     };
   }
-};
-
+}
 
 export default class Postman {
   public transporter: any = null;
@@ -62,7 +64,8 @@ To reset your password, simply click the link below.
 
 Thanks.
 
-`},
+`
+    },
     verification: {
       subject: 'Verify account',
       text: `Dear User
@@ -87,10 +90,10 @@ Thanks.
 
   set mailOptions(options: PostmanOptions) {
     if (options) {
-      this._defaultMailOptions = Object.assign(this._defaultMailOptions, options);
+      this._defaultMailOptions = {...this._defaultMailOptions, ...options};
       this.mailTemplates.defaultOptions = this._defaultMailOptions;
     }
-  };
+  }
 
   // send mail with defined transport object
 
@@ -115,12 +118,13 @@ Thanks.
       if (!process.env.MAIL_URL) {
         throw new Error('You need to set environment variable: MAIL_URL');
       } else {
+        // tslint:disable-next-line:no-console
         console.log('Mail URL: ' + process.env.MAIL_URL);
       }
       this.transporter = nodemailer.createTransport(process.env.MAIL_URL);
     }
+    // tslint:disable-next-line:no-console
     console.log(mailOptions);
-    return await this.transporter.sendMail(mailOptions);
+    return this.transporter.sendMail(mailOptions);
   }
 }
-

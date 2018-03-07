@@ -45,10 +45,10 @@ module.exports = function (w) {
     setup: function(w) {
       // configure sinon
       var sinon = require('sinon');
-      var sinonTest = require('sinon-test');
+      // var sinonTest = require('sinon-test');
 
-      sinon.test = sinonTest.configureTest(sinon);
-      sinon.testCase = sinonTest.configureTestCase(sinon);
+      // sinon.test = sinonTest.configureTest(sinon);
+      // sinon.testCase = sinonTest.configureTestCase(sinon);
 
       // setup power asssert
       var Module = require('module').Module;

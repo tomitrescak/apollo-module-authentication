@@ -1,7 +1,8 @@
-import * as sinon from 'sinon';
 import * as assert from 'power-assert';
+import * as sinon from 'sinon';
 
 import * as resolver from '../resolvers';
+
 import User from '../authentication';
 
 const context: any = {
@@ -21,9 +22,7 @@ describe('resolvers', () => {
       const headers = { authorization: 'TOKEN' };
       const modifyContextStub = sinon.stub(context.users, 'modifyContext');
       const options: any = { context };
-      resolver.modifyOptions(
-        { headers },
-        options);
+      resolver.modifyOptions({ headers }, options);
 
       assert(modifyContextStub.calledWithExactly(headers.authorization, context));
     });
@@ -41,7 +40,7 @@ describe('resolvers', () => {
   const user: any = {
     _id: '1',
     createdAt: new Date(),
-    emails: <any[]>[],
+    emails: [] as any[],
     services: [services],
     profile: {},
     roles: ['role']
@@ -66,97 +65,129 @@ describe('resolvers', () => {
     });
   });
 
-
   describe('queries', () => {
-    it('user: returns user', sinon.test(function () {
-      const stub = this.stub(context.users, 'findOne');
+    it('user: returns user', function() {
+      const stub = sinon.stub(context.users, 'findOne');
       resolver.queries.user(user, { id: '1' }, context);
       sinon.assert.calledWithExactly(stub, { _id: '1' });
-    }));
+      stub.restore();
+    });
 
-    it('users: returns user from context', sinon.test(function () {
-      const stub = this.stub(context.users, 'findOne');
+    it('users: returns user from context', function() {
+      const stub = sinon.stub(context.users, 'findOne');
       resolver.queries.user(user, {}, context);
       sinon.assert.calledWithExactly(stub, { _id: '1' });
-    }));
+      stub.restore();
+    });
 
-    it('users: returns users', sinon.test(function () {
-      const stub = this.stub(context.users, 'find');
+    it('users: returns users', function() {
+      const stub = sinon.stub(context.users, 'find');
       resolver.queries.users(user, { id: '1' }, context);
       sinon.assert.calledOnce(stub);
-    }));
+      stub.restore();
+    });
 
-    it('cachedUser: returns cached usesr', sinon.test(function () {
-      const stub = this.stub(context.users, 'findManyCached');
+    it('cachedUser: returns cached usesr', function() {
+      const stub = sinon.stub(context.users, 'findManyCached');
       resolver.queries.cachedUsers(user, { id: '1' }, context);
       sinon.assert.calledOnce(stub);
-    }));
+      stub.restore();
+    });
   });
 
   describe('mutations', () => {
-    it('createAccount', sinon.test(function () {
-      const stub = this.stub(context.users, 'create');
+    it('createAccount', function() {
+      const stub = sinon.stub(context.users, 'create');
       resolver.mutations.createAccount(null, { user: loginUser }, context);
-      sinon.assert.calledWithExactly(stub, null, loginUser.email, loginUser.password, loginUser.profile);
-    }));
+      sinon.assert.calledWithExactly(
+        stub,
+        null,
+        loginUser.email,
+        loginUser.password,
+        loginUser.profile
+      );
+      stub.restore();
+    });
 
     it('createAccountAndLogin', async () => {
-      
       const createStub = sinon.stub(context.users, 'create');
       const loginStub = sinon.stub(context.users, 'login');
 
       await resolver.mutations.createAccountAndLogin(null, { user: loginUser }, context);
 
-      sinon.assert.calledWithExactly(createStub, null, loginUser.email, loginUser.password, loginUser.profile);
+      sinon.assert.calledWithExactly(
+        createStub,
+        null,
+        loginUser.email,
+        loginUser.password,
+        loginUser.profile
+      );
       sinon.assert.calledWith(loginStub, loginUser.email, loginUser.password);
 
       createStub.restore();
       loginStub.restore();
     });
 
-    it('loginWithPassword', sinon.test(function () {
-      const stub = this.stub(context.users, 'login').returns(1);
+    it('loginWithPassword', function() {
+      const stub = sinon.stub(context.users, 'login').returns(1);
       const result = resolver.mutations.loginWithPassword(null, { user: loginUser }, context);
 
       // check the call and the return value
       sinon.assert.alwaysCalledWith(stub, loginUser.email, loginUser.password);
       assert.equal(1, result);
-    }));
+      stub.restore();
+    });
 
-    it('requestResendVerification', sinon.test(function () {
-      const stub = this.stub(context.users, 'requestVerification').returns(1);
-      const result = resolver.mutations.requestResendVerification(null, { email: loginUser.email }, context);
+    it('requestResendVerification', function() {
+      const stub = sinon.stub(context.users, 'requestVerification').returns(1);
+      const result = resolver.mutations.requestResendVerification(
+        null,
+        { email: loginUser.email },
+        context
+      );
       sinon.assert.calledWithExactly(stub, loginUser.email);
       assert.equal(1, result);
-    }));
+      stub.restore();
+    });
 
-    it('requestResetPassword', sinon.test(function () {
-      const stub = this.stub(context.users, 'requestResetPassword').returns(1);
-      const result = resolver.mutations.requestResetPassword(null, { email: loginUser.email }, context);
+    it('requestResetPassword', function() {
+      const stub = sinon.stub(context.users, 'requestResetPassword').returns(1);
+      const result = resolver.mutations.requestResetPassword(
+        null,
+        { email: loginUser.email },
+        context
+      );
       sinon.assert.calledWithExactly(stub, loginUser.email);
       assert.equal(1, result);
-    }));
+      stub.restore();
+    });
 
-    it('verify', sinon.test(function () {
-      const stub = this.stub(context.users, 'verify').returns(1);
+    it('verify', function() {
+      const stub = sinon.stub(context.users, 'verify').returns(1);
       const result = resolver.mutations.verify(null, { token: 'token' }, context);
       sinon.assert.calledWithExactly(stub, 'token');
       assert.equal(1, result);
-    }));
+      stub.restore();
+    });
 
-    it('resume', sinon.test(function () {
-      const stub = this.stub(context.users, 'resume').returns(1);
+    it('resume', function() {
+      const stub = sinon.stub(context.users, 'resume').returns(1);
       const result = resolver.mutations.resume(null, { token: 'token' }, context);
       sinon.assert.calledWithExactly(stub, 'token');
       assert.equal(1, result);
-    }));
+      stub.restore();
+    });
 
-    it('resetPassword', sinon.test(function () {
-      const stub = this.stub(context.users, 'resetPassword').returns(1);
-      const result = resolver.mutations.resetPassword(null, { token: 'token', password: 'password' }, context);
+    it('resetPassword', function() {
+      const stub = sinon.stub(context.users, 'resetPassword').returns(1);
+      const result = resolver.mutations.resetPassword(
+        null,
+        { token: 'token', password: 'password' },
+        context
+      );
       sinon.assert.calledWithExactly(stub, 'token', 'password');
       assert.equal(1, result);
-    }));
-
+      stub.restore();
+    });
   });
 });

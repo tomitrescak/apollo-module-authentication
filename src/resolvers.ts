@@ -1,6 +1,14 @@
-import User, { UserEntity, AccountsServices, Token, Email, PasswordService, Profile } from './authentication';
 import { ApolloOptions } from 'apollo-modules';
 import { Cursor } from 'mongodb';
+
+import User, {
+  AccountsServices,
+  Email,
+  PasswordService,
+  Profile,
+  Token,
+  UserEntity
+} from './authentication';
 
 export interface Context {
   users: User<UserEntity>;
@@ -23,7 +31,10 @@ export interface Context {
 
 export async function modifyOptions(req: any, apolloOptions: ApolloOptions) {
   if (req.headers.authorization) {
-    await apolloOptions.context.users.modifyContext(req.headers.authorization, apolloOptions.context);
+    await apolloOptions.context.users.modifyContext(
+      req.headers.authorization,
+      apolloOptions.context
+    );
   }
 }
 
@@ -54,7 +65,7 @@ export const resolvers = {
 export const queries = {
   user(_target: UserEntity, { id }: any, context: Context): Promise<UserEntity> {
     id = id ? id : context.userId;
-    return context.users.findOne({_id: id});
+    return context.users.findOne({ _id: id });
   },
   async users(_target: UserEntity, _: any, context: Context): Promise<Cursor<UserEntity>> {
     return context.users.find({});
@@ -104,4 +115,3 @@ export const mutations = {
     return context.users.resetPassword(token, password);
   }
 };
-

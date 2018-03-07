@@ -1,8 +1,16 @@
 import { ApolloOptions } from 'apollo-modules';
-import { resolvers, queries, mutations, modifyOptions } from './resolvers';
-import { default as User, Email, Profile, Token, UserEntity, PasswordService, AccountsServices } from './authentication';
-import { Context } from './resolvers';
 import { Cursor } from 'mongodb';
+
+import {
+  AccountsServices,
+  default as User,
+  Email,
+  PasswordService,
+  Profile,
+  Token,
+  UserEntity
+} from './authentication';
+import { Context, modifyOptions, mutations, queries, resolvers } from './resolvers';
 
 const schema = `
   type Token {
@@ -51,7 +59,6 @@ const queryText = `
   cachedUsers: [User]
 `;
 
-
 const mutationText = `
   createAccount(user: UserPasswordInput): User
   createAccountAndLogin(user: UserPasswordInput): Token
@@ -72,4 +79,3 @@ export default {
   mutations,
   modifyOptions
 };
-

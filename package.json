@@ -1,11 +1,11 @@
 {
   "name": "apollo-module-authentication",
-  "version": "1.1.7",
+  "version": "2.0.0",
   "description": "Apollo password authentication",
-  "main": "./dist/schema.js",
+  "main": "./dist/index.js",
   "scripts": {
     "build": "tsc",
-    "test": "mocha --require ./setup.js --report lcovonly src/tests/*.ts --compilers ts:ts-node/register --bail ",
+    "test": "mocha --report lcovonly src/tests/*.ts --compilers ts:ts-node/register --bail ",
     "coverage": "NODE_ENV=test nyc npm test && nyc report --reporter=lcov",
     "coveralls": "NODE_ENV=test nyc npm test && nyc report --reporter=text-lcov | coveralls"
   },
@@ -19,34 +19,36 @@
   "eslintConfig": {
     "extends": "./eslint.js"
   },
-  "typings": "./dist/schema.d.ts",
-  "types": "./dist/schema.d.ts",
+  "types": "./dist/index.d.ts",
   "dependencies": {
-    "apollo-connector-mongodb": "^1.1.2",
-    "apollo-modules": "^1.0.1",
     "bcrypt-nodejs": "^0.0.3",
-    "graphql": "^0.7.2",
-    "jsonwebtoken": "^7.1.9",
+    "jsonwebtoken": "^8.2.0",
     "meteor-random": "^0.0.3",
     "meteor-sha256": "^1.0.1",
-    "nodemailer": "^2.6.0"
+    "nodemailer": "^4.6.2",
+    "proxyquire": "^2.0.0"
   },
   "devDependencies": {
-    "coveralls": "^2.11.12",
-    "espower-source": "^1.1.0",
-    "mocha": "^3.0.2",
-    "mocha-lcov-reporter": "^1.2.0",
-    "nyc": "^8.1.0",
-    "power-assert": "^1.4.1",
-    "proxyquire": "^1.7.10",
-    "sinon": "^2.0.0-pre.2",
-    "sinon-test": "0.0.1",
-    "ts-node": "^1.3.0",
-    "typescript": "^2.0.2"
+    "@types/mongodb": "^3.0.7",
+    "apollo-connector-mongodb": "^2.0.1",
+    "apollo-modules": "^1.0.7",
+    "coveralls": "^3.0.0",
+    "espower-source": "^2.2.0",
+    "graphql": "^0.13.1",
+    "mocha": "^5.0.2",
+    "mocha-lcov-reporter": "^1.3.0",
+    "mongodb": "^3.0.4",
+    "nodemailer": "^4.6.2",
+    "nyc": "^11.4.1",
+    "power-assert": "^1.4.4",
+    "proxyquire": "^2.0.0",
+    "sinon": "^4.4.2",
+    "sinon-test": "2.1.3",
+    "ts-node": "^5.0.1",
+    "tslint-config-prettier": "^1.9.0",
+    "typescript": "^2.7.2"
   },
-  "peerDependencies": {
-    "mongodb": "^2.2.9"
-  },
+  "peerDependencies": {},
   "nyc": {
     "include": [
       "src/*.ts",

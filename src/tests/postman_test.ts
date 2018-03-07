@@ -1,8 +1,10 @@
 import * as assert from 'power-assert';
-import { default as PostmanType } from '../postman';
-import { PostmanOptions } from '../postman_shared';
 import * as proxyquire from 'proxyquire';
 import * as sinon from 'sinon';
+
+import { default as PostmanType } from '../postman';
+import { PostmanOptions } from '../postman_shared';
+
 
 const transportMailSpy = sinon.spy();
 const createTransportSpy = sinon.spy(() => ({
@@ -13,10 +15,10 @@ const MailerStub: any = {
   createTransport: createTransportSpy
 };
 
-const Postman = proxyquire('../postman', { 'nodemailer': MailerStub }).default;
+const Postman = proxyquire('../postman', { nodemailer: MailerStub }).default;
 
-describe('Postman', function () {
-  describe('Mail Templates', function () {
+describe('Postman', function() {
+  describe('Mail Templates', function() {
     let postman: PostmanType;
 
     beforeEach(() => {
@@ -63,14 +65,22 @@ describe('Postman', function () {
 
     it('creates a new reset email and replaces template values', () => {
       postman.mailOptions.resetPassword.text = '${fromName} ${toName} ${url}';
-      const mail = postman.mailTemplates.resetPassword({ fromName: 'FromName', toName: 'ToName', url: 'MyUrl' });
+      const mail = postman.mailTemplates.resetPassword({
+        fromName: 'FromName',
+        toName: 'ToName',
+        url: 'MyUrl'
+      });
 
       assert.equal(mail.text, 'FromName ToName MyUrl');
     });
 
     it('creates a new verisifcation email and replaces template values', () => {
       postman.mailOptions.verification.text = '${fromName} ${toName} ${url}';
-      const mail = postman.mailTemplates.sendVerification({ fromName: 'FromName', toName: 'ToName', url: 'MyUrl' });
+      const mail = postman.mailTemplates.sendVerification({
+        fromName: 'FromName',
+        toName: 'ToName',
+        url: 'MyUrl'
+      });
 
       assert.equal(mail.text, 'FromName ToName MyUrl');
     });
@@ -93,7 +103,7 @@ describe('Postman', function () {
     });
 
     it('checks for missing MAIL URL and throws excpetion if not initialised', async () => {
-      delete (process.env.MAIL_URL);
+      delete process.env.MAIL_URL;
       let thrown: string;
       try {
         await postman.sendMail({ from: 'Me', to: 'You' });
@@ -153,6 +163,5 @@ describe('Postman', function () {
         assert(ex.message.match(/Invalid login/));
       }
     });
-
   });
 });
